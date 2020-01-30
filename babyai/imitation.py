@@ -139,6 +139,7 @@ class ImitationLearning(object):
         self.acmodel = utils.load_model(args.model, raise_not_found=False)
         if self.acmodel is None:
             if getattr(self.args, 'pretrained_model', None):
+                logger.info("Loading pretrained model")
                 self.acmodel = utils.load_model(args.pretrained_model, raise_not_found=True)
             else:
                 logger.info('Creating new model')
@@ -213,6 +214,7 @@ class ImitationLearning(object):
             log["entropy"].append(_log["entropy"])
             log["policy_loss"].append(_log["policy_loss"])
             log["accuracy"].append(_log["accuracy"])
+            log["frames"] = frames
 
             offset += batch_size
         log['total_frames'] = frames
@@ -470,6 +472,9 @@ class ImitationLearning(object):
                     logger.info(
                         "Losing patience, new value={}, limit={}".format(status['patience'], self.args.patience))
 
+
+            if status['i'] % self.args.save_interval == 0:
+                logger.info("Saving current model")
                 if torch.cuda.is_available():
                     self.acmodel.cpu()
                 utils.save_model(self.acmodel, self.args.model)

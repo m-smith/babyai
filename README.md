@@ -2,7 +2,22 @@
 
 [![Build Status](https://travis-ci.org/mila-iqia/babyai.svg?branch=master)](https://travis-ci.org/mila-iqia/babyai)
 
-A platform for simulating language learning with a human in the loop. This is an ongoing research project based at [Mila](https://mila.quebec/en/). If you use this platform in your research, please cite:
+A platform for simulating language learning with a human in the loop. This is an ongoing research project based at [Mila](https://mila.quebec/en/).
+
+Contents:
+- [Citation](#citation)
+- [Replicating ICLR19 Results](#replicating-iclr19-results)
+- [Installation](#installation)
+- [Usage](#usage)
+- [Codebase Structure](docs/codebase.md)
+- [Levels](#the-levels)
+- [Training and Evaluation](docs/train-eval.md)
+- [Contributing](CONTRIBUTING.md)
+- [Troubleshooting](docs/troubleshooting.md)
+- [About](#about-this-project)
+
+## Citation
+If you use this platform in your research, please cite:
 
 ```
 @inproceedings{
@@ -45,8 +60,8 @@ Requirements:
 - Python 3.5+
 - OpenAI Gym
 - NumPy
-- PyQT5
 - PyTorch 0.4.1+
+- blosc
 
 Start by manually installing PyTorch. See the [PyTorch website](http://pytorch.org/)
 for installation instructions specific to your platform.
@@ -120,7 +135,7 @@ In `scripts`:
 To run the interactive GUI application that illustrates the platform:
 
 ```
-scripts/gui.py
+scripts/manual_control.py
 ```
 
 The level being run can be selected with the `--env` option, eg:
@@ -134,38 +149,7 @@ scripts/gui.py --env BabyAI-UnlockPickup-v0
 To train an RL agent run e.g.
 
 ```
-scripts/train_rl.py --env BabyAI-GoToLocal-v0
-```
-
-Folders `logs/` and `models/` will be created in the current directory. The default name
-for the model is chosen based on the level name, the current time and the other settings (e.g.
-`BabyAI-GoToLocal-v0_ppo_expert_filmcnn_gru_mem_seed1_18-10-12-12-45-02`). You can also choose the model
-name by setting `--model`. After 5 hours of training you should be getting a success rate of 97-99\%.
-A machine readable log can be found in `logs/<MODEL>/log.csv`, a human readable in `logs/<MODEL>/log.log`.
-
-To train an agent with imitation learning first make sure that you have your demonstrations in
-`demos/<DEMOS>`. Then run e.g.
-
-```
-scripts/train_il.py --env BabyAI-GoToLocal-v0 --demos <DEMOS>
-```
-
-In the example above we run scripts from the root of the repository, but if you have installed BabyAI as
-described above, you can also run all scripts with commands like `<PATH-TO-BABYAI-REPO>/scripts/train_il.py`.
-
-### Evaluation
-
-In the same directory where you trained your model run e.g.
-
-```
-scripts/evaluate.py --env BabyAI-GoToLocal-v0 --model <MODEL>
-```
-
-to evaluate the performance of your model named `<MODEL>` on 1000 episodes. If you want to see
-your agent performing, run
-
-```
-scripts/enjoy.py --env BabyAI-GoToLocal-v0 --model <MODEL>
+scripts/manual_control.py --env BabyAI-UnlockPickup-v0
 ```
 
 ### The Levels
@@ -175,13 +159,18 @@ Documentation for the ICLR19 levels can be found in
 There are also older levels documented in
 [docs/bonus_levels.md](docs/bonus_levels.md).
 
-### Troubleshooting
+### Pixel Observations
 
 If you run into error messages relating to OpenAI gym or PyQT, it may be that the version of those libraries that you have installed is incompatible. You can try upgrading specific libraries with pip3, eg: `pip3 install --upgrade gym`. If the problem persists, please [open an issue](https://github.com/mila-iqia/babyai/issues) on this repository and paste a *complete* error message, along with some information about your platform (are you running Windows, Mac, Linux? Are you running this on a Mila machine?).
 
-## Instructions for Committers
+```
+import babyai
+from gym_minigrid.wrappers import *
+env = gym.make('BabyAI-GoToRedBall-v0')
+env = RGBImgPartialObsWrapper(env)
+```
 
-To contribute to this project, you should first create your own fork, and remember to periodically [sync changes from this repository](https://stackoverflow.com/questions/7244321/how-do-i-update-a-github-forked-repository). You can then create [pull requests](https://yangsu.github.io/pull-request-tutorial/) for modifications you have made. Your changes will be tested and reviewed before they are merged into this repository. If you are not familiar with forks and pull requests, we recommend doing a Google or YouTube search to find many useful tutorials on the topic.
+This wrapper, as well as other wrappers to change the observation format can be [found here](https://github.com/maximecb/gym-minigrid/blob/master/gym_minigrid/wrappers.py).
 
 ## About this Project
 

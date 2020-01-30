@@ -12,3 +12,4 @@ dependencies:
     - pip
     - pip:
         - gym
+        - scikit-build

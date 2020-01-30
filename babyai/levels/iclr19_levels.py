@@ -9,35 +9,6 @@ from .levelgen import *
 
 class Level_GoToRedBallGrey(RoomGridLevel):
     """
-    Go to the red ball, single room, with obstacles.
-    The obstacles/distractors are all grey boxes, to eliminate
-    perceptual complexity. No unblocking required.
-    """
-
-    def __init__(self, room_size=8, num_dists=7, seed=None):
-        self.num_dists = num_dists
-        super().__init__(
-            num_rows=1,
-            num_cols=1,
-            room_size=room_size,
-            seed=seed
-        )
-
-    def gen_mission(self):
-        self.place_agent()
-        obj, _ = self.add_object(0, 0, 'ball', 'red')
-
-        for i in range(self.num_dists):
-            self.add_object(0, 0, 'box', 'grey')
-
-        # Make sure no unblocking is required
-        self.check_objs_reachable()
-
-        self.instrs = GoToInstr(ObjDesc(obj.type, obj.color))
-
-
-class Level_GoToRedBall(RoomGridLevel):
-    """
     Go to the red ball, single room, with distractors.
     This level has distractors but doesn't make use of language.
     """
@@ -69,6 +40,40 @@ class Level_GoToRedBallNoDists(Level_GoToRedBall):
 
     def __init__(self, seed=None):
         super().__init__(room_size=8, num_dists=0, seed=seed)
+
+
+class Level_GoToObj(RoomGridLevel):
+    """
+    Go to an object, inside a single room with no doors, no distractors
+    """
+
+    def __init__(self, room_size=8, seed=None):
+        super().__init__(
+            num_rows=1,
+            num_cols=1,
+            room_size=room_size,
+            seed=seed
+        )
+
+    def gen_mission(self):
+        self.place_agent()
+        objs = self.add_distractors(num_distractors=1)
+        obj = objs[0]
+        self.instrs = GoToInstr(ObjDesc(obj.type, obj.color))
+
+
+class Level_GoToObjS4(Level_GoToObj):
+    def __init__(self, seed=None):
+        super().__init__(room_size=4, seed=seed)
+
+
+class Level_GoToRedBallNoDists(Level_GoToRedBall):
+    """
+    Go to the red ball. No distractors present.
+    """
+
+    def __init__(self, seed=None):
+        super().__init__(room_size=6, seed=seed)
 
 
 class Level_GoToObj(RoomGridLevel):
@@ -342,7 +347,7 @@ class Level_GoToImpUnlock(RoomGridLevel):
         # The agent must be placed after all the object to respect constraints
         while True:
             self.place_agent()
-            start_room = self.room_from_pos(*self.start_pos)
+            start_room = self.room_from_pos(*self.agent_pos)
             # Ensure that we are not placing the agent in the locked room
             if start_room is locked_room:
                 continue
@@ -462,7 +467,7 @@ class Level_Unlock(RoomGridLevel):
         # The agent must be placed after all the object to respect constraints
         while True:
             self.place_agent()
-            start_room = self.room_from_pos(*self.start_pos)
+            start_room = self.room_from_pos(*self.agent_pos)
             # Ensure that we are not placing the agent in the locked room
             if start_room is locked_room:
                 continue
